@@ -123,10 +123,68 @@ void conser::confirm()
 			cout<<"password  wrong"<<endl;
 		}
 	}
-	
+}
+ 
+
+bool conser::filemd5confirm(char * filemd5)
+{
+	MyDB db;
+	db.initDB(SERADD,DBUSER,DBPSWD,DBNAME);
+    string FILEMD5=filemd5;
+    string usersql ="select * from file where filemd5='"+FILEMD5+"'";
+    bool userBool=db.execSQL(usersql); 
+    if (userBool)
+     {
+     	return true;
+     } 
+    else
+    {
+    	return false;
+    }  
 }
 
+void conser::filemd5()
+{
+	recv(cli_fd,(void *)fileinfo.c_str(),1024,0);
 
+	MyDB db;
+    db.initDB(SERADD,DBUSER,DBPSWD,DBNAME);
+    cout<<"enter database"<<endl;
+
+	char buf[40];
+	strcpy(buf,fileinfo.c_str());
+	//cout<<"buf="<<buf<<endl;
+	char *ptr=strtok(buf," ");
+	cout<<"ptr="<<ptr<<endl;
+	bool userbool=filemd5confirm(ptr);
+	if (!userbool)
+	{
+		cout<<"file is not exist"<<endl;
+	}
+	else
+	{
+		cout<<"file is exist"<<endl;
+	}
+}
+
+void conser::recvfile()
+{
+	char *filename="hacker.png";
+    FILE* fp=fopen(filename,"wb");
+    if (fp==NULL)
+    {
+        perror("openfile fail:");
+    }
+    cout<<"begin  recvfile "<<endl;
+    char buffer[1024]={0};
+    int nCount;
+    while((nCount=recv(cli_fd,buffer,1024,0))>0)
+    {
+        fwrite(buffer,nCount,1,fp);
+    }
+    fclose(fp);
+    cout<<"recvfile ok"<<endl;
+}
 
 
 void conser::Run()
@@ -134,7 +192,9 @@ void conser::Run()
 	Bind();
 	Listen();
 	receive();
-	confirm();
+	//confirm();
+	filemd5();
+	//recvfile();
 }
 
 int main(int argc, char const *argv[])

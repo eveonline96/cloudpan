@@ -21,7 +21,7 @@ using namespace std;
 #define  CHAP 6668		//聊天端口
 #define  MEMP 11211		//memcached 端口
 
-#define SERIP   "47.95.9.185"//"192.168.253.129"
+#define SERIP   "192.168.253.129"//"192.168.253.129"
 #define SERADD  "localhost"  //"47.95.9.185"  //服务端地址
 #define DBUSER  "root"      //数据库用户名
 #define DBPSWD  "654321"    //密码

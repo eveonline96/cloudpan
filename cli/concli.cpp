@@ -23,7 +23,7 @@ void concli::conn()     //与客户端连接
 		perror("conn fail");
 		exit(-1);
 	}
-	login();
+
 }
 
 // void concli::select()   //选择服务项
@@ -69,16 +69,16 @@ void concli::login()    //登录
     cin>>passwd;
     //msg = msg + " "+passwd;
     msg = msg+" "+MD5(passwd).toString();
-    sendmsg();
+  
 }
 void concli::sendmsg()   //发送消息
 {
 	//cout<<msg.c_str()<<endl;
     send(client_fd,msg.c_str(),msg.size()+1,0); 
     cout<<"client send ok"<<endl;       
-    recv(client_fd,(void *)msg.c_str(),1024,0);
-    cout<<"client recv ok"<<endl;  
-    cout<<"msg.c_str()="<<msg.c_str()<<endl;
+    // recv(client_fd,(void *)msg.c_str(),1024,0);
+    // cout<<"client recv ok"<<endl;  
+    // cout<<"msg.c_str()="<<msg.c_str()<<endl;
  //    if(strncmp("1",msg.c_str(),1) == 0 )
 	// {
  //       cout<<"login successful"<<endl;
@@ -94,11 +94,56 @@ void concli::sendmsg()   //发送消息
     //     select();
     // }
 }
+void concli::filemd5()   //发送filemd5
+{
+	string fname,passwd;
+	cout<<"please input filename:"<<endl;
+    cin>>fname;
+    fileinfo=fname;
+	fileinfo=MD5(fname).toString()+" "+fileinfo;
+
+	send(client_fd,fileinfo.c_str(),fileinfo.size()+1,0); 
+    cout<<"client send ok"<<endl;       
+}
+
+void concli::sendfile()      //发送文件
+{
+	char *filename="hacker.png";
+    FILE* fp=fopen(filename,"rb");
+    if (fp==NULL)
+    {
+        perror("openfile fail:");
+    }
+    cout<<"begin sendfile"<<endl;
+    char buffer[1024]={0};
+    int nCount;
+    while((nCount=fread(buffer,1,1024,fp))>0)
+    {
+        send(client_fd,buffer,nCount,0);
+    }
+    shutdown(client_fd,SHUT_RD);
+    //recv(client_fd,buffer,1024,0);
+    fclose(fp);
+    cout<<"sendfile ok"<<endl;
+}
+
+
+void concli::Run()
+{
+	conn();
+	login();
+	sendmsg();
+	filemd5();
+	//sendfile();
+}
+
 
 int main(int argc, char const *argv[])
 {
 	concli cli(MANP,SERIP);
-	cli.conn();
+	cli.Run();
+
+	//cli.sendfile();
 	return 0;
 }
 
